@@ -32,7 +32,7 @@ class CPU:
 
     def HLT(self): # stop program (halt)
         self.hlt = True
-        self.px += 1
+        self.pc += 1
 
     def load(self):
         """Load a program into memory."""
@@ -92,11 +92,10 @@ class CPU:
             operand_b = self.ram_read(self.pc + 2)
 
             if ir == self.ldi:
-                self.register[operand_a] = operand_b
-                self.pc += 3
+                self.LDI()
             elif ir == self.prn:
                 self.PRN()
             elif ir == self.halt:
-                self.hlt = True
+                self.HLT()
             
 
