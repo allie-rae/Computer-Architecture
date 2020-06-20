@@ -6,8 +6,33 @@ class CPU:
     """Main CPU class."""
 
     def __init__(self):
-        """Construct a new CPU."""
-        pass
+        self.ram = [0] * 256 # size of RAM
+        self.register = [0] * 8 # 8 registers
+        self.pc = 0 # program counter starts at 0
+        self.hlt = False # halted is false
+        self.sp = 0xF4 # pointer to top of stack
+        self.ldi = 0b10000010 
+        self.prn = 0b01000111 
+        self.halt = 0b00000001
+
+
+    def ram_read(self, mar): # MAR = memory address register
+        return self.ram[mar] 
+    
+    def ram_write(self, mdr, mar): # MDR = memory data register
+        self.ram[mar] = mdr 
+
+    def LDI(self): # store a value in register
+        self.register[self.ram_read(self.pc + 1)] = self.ram_read(self.pc + 2)
+        self.pc += 3
+
+    def PRN(self): # print a value in register
+        print(f'value: {self.register[self.ram_read(self.pc + 1)]}')
+        self.pc += 2
+
+    def HLT(self): # stop program (halt)
+        self.hlt = True
+        self.px += 1
 
     def load(self):
         """Load a program into memory."""
@@ -61,5 +86,17 @@ class CPU:
         print()
 
     def run(self):
-        """Run the CPU."""
-        pass
+        while self.hlt == False: 
+            ir = self.ram[self.pc] # IR = instruction register
+            operand_a = self.ram_read(self.pc + 1)
+            operand_b = self.ram_read(self.pc + 2)
+
+            if ir == self.ldi:
+                self.register[operand_a] = operand_b
+                self.pc += 3
+            elif ir == self.prn:
+                self.PRN()
+            elif ir == self.halt:
+                self.hlt = True
+            
+
