@@ -3,7 +3,6 @@
 import sys
 
 
-
 class CPU:
     """Main CPU class."""
 
@@ -30,30 +29,6 @@ class CPU:
 
     def ram_write(self, mdr, mar):  # MDR = memory data register
         self.ram[mar] = mdr
-
-    def LDI(self):  # store a value in register
-        self.register[self.ram_read(self.pc + 1)] = self.ram_read(self.pc + 2)
-        self.pc += 3
-
-    def PRN(self):  # print a value in register
-        print(f'{self.register[self.ram_read(self.pc + 1)]}')
-        self.pc += 2
-
-    def HLT(self):  # stop program (halt)
-        self.hlt = True
-        self.pc += 1
-
-    def MUL(self):  # multiply
-        operand_a = self.ram_read(self.pc + 1)
-        operand_b = self.ram_read(self.pc + 2)
-        self.alu("MUL", operand_a, operand_b)
-        self.pc += 3
-
-    def CMP(self):
-        operand_a = self.ram_read(self.pc + 1)
-        operand_b = self.ram_read(self.pc + 2)
-        self.alu("CMP", operand_a, operand_b)
-        self.pc += 3
 
     def load(self, filename):
         address = 0
@@ -107,22 +82,28 @@ class CPU:
             operand_a = self.ram_read(self.pc + 1)
             operand_b = self.ram_read(self.pc + 2)
 
-            if ir == self.ldi:
-                self.LDI()
-            elif ir == self.prn:
-                self.PRN()
-            elif ir == self.mul:
-                self.MUL()
+            if ir == self.ldi:  # store a value in register
+                self.register[self.ram_read(
+                    self.pc + 1)] = self.ram_read(self.pc + 2)
+                self.pc += 3
+            elif ir == self.prn:  # print a value in the register
+                print(f'{self.register[self.ram_read(self.pc + 1)]}')
+                self.pc += 2
+            elif ir == self.mul:  # multiply
+                self.alu("MUL", operand_a, operand_b)
+                self.pc += 3
             elif ir == self.cmp:
-                self.CMP()
+                self.alu("CMP", operand_a, operand_b)
+                self.pc += 3
             elif ir == self.halt:
-                self.HLT()
+                self.hlt = True
+                self.pc += 1
             elif ir == self.jmp:
                 self.pc = self.register[operand_a]
             elif ir == self.jeq:
                 if self.E == 1:
                     self.pc = self.register[operand_a]
-                else: 
+                else:
                     self.pc += 2
             elif ir == self.jne:
                 if self.E == 0:
