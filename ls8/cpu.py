@@ -3,6 +3,7 @@
 import sys
 
 
+
 class CPU:
     """Main CPU class."""
 
@@ -16,6 +17,13 @@ class CPU:
         self.prn = 0b01000111
         self.halt = 0b00000001
         self.mul = 0b10100010
+        self.cmp = 0b10100111
+        self.jmp = 0b01010100
+        self.jeq = 0b01010101
+        self.jne = 0b01010110
+        self.E = 0
+        self.G = 0
+        self.L = 0
 
     def ram_read(self, mar):  # MAR = memory address register
         return self.ram[mar]
@@ -41,6 +49,12 @@ class CPU:
         self.alu("MUL", operand_a, operand_b)
         self.pc += 3
 
+    def CMP(self):
+        operand_a = self.ram_read(self.pc + 1)
+        operand_b = self.ram_read(self.pc + 2)
+        self.alu("CMP", operand_a, operand_b)
+        self.pc += 3
+
     def load(self, filename):
         address = 0
         with open(filename) as f:
@@ -57,6 +71,13 @@ class CPU:
             self.register[reg_a] += self.register[reg_b]
         elif op == "MUL":
             self.register[reg_a] *= self.register[reg_b]
+        elif op == "CMP":
+            if self.register[reg_a] == self.register[reg_b]:
+                self.E = 1
+            elif self.register[reg_a] > self.register[reg_b]:
+                self.G = 1
+            elif self.register[reg_a] < self.register[reg_b]:
+                self.L = 1
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -92,5 +113,21 @@ class CPU:
                 self.PRN()
             elif ir == self.mul:
                 self.MUL()
+            elif ir == self.cmp:
+                self.CMP()
             elif ir == self.halt:
                 self.HLT()
+            elif ir == self.jmp:
+                self.pc = self.register[operand_a]
+            elif ir == self.jeq:
+                if self.E == 1:
+                    self.pc = self.register[operand_a]
+                else: 
+                    self.pc += 2
+            elif ir == self.jne:
+                if self.E == 0:
+                    self.pc = self.register[operand_a]
+                else:
+                    self.pc += 2
+            else:
+                raise Exception("Unsupported ALU operation")
